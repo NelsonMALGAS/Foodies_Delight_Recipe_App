@@ -1,19 +1,50 @@
-import React, { useState } from 'react';
+/* eslint-disable no-alert */
+import { useState , useEffect } from 'react';
 import Link from 'next/link';
 import { Send, Smile } from 'react-feather';
 
 function Contact() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
   });
+  useEffect(() => {
+    // Clear success message after 5 seconds (5000 milliseconds)
+    if (isSubmitted) {
+      const timeoutId = setTimeout(() => {
+        setIsSubmitted(false);
+      }, 5000);
 
-  const handleSubmit = (e) => {
+      // Clear the timeout when the component is unmounted
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isSubmitted]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Perform any necessary form submission logic here
-    setIsSubmitted(true);
+
+    try {
+      const response = await fetch('https://potfolio-980dc-default-rtdb.firebaseio.com/foodies-delight.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setError(false);
+      } else {
+        setError(true);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      setError(true);
+    }
   };
 
   const handleChange = (e) => {
@@ -39,6 +70,12 @@ function Contact() {
         </div>
       ) : (
         <>
+          {error && (
+            <div className="mb-4 text-red-600 p-4 bg-red-100 rounded">
+              Something went wrong! Please try again later.
+            </div>
+          )}
+
           <p className="text-lg mb-4">Have questions or suggestions? Feel free to reach out to us.</p>
 
           <form className="max-w-md mx-auto" onSubmit={handleSubmit}>
