@@ -12,7 +12,6 @@ function Contact() {
     message: '',
   });
   useEffect(() => {
-    // Clear success message after 5 seconds (5000 milliseconds)
     if (isSubmitted) {
       const timeoutId = setTimeout(() => {
         setIsSubmitted(false);
